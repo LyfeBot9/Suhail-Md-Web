@@ -10,6 +10,38 @@ express()
   .use(express.static(path.join(__dirname, 'public')))
   .set('views', path.join(__dirname, 'views'))
   .set('view engine', 'ejs')
+  .get('/', (req, res) => {
+    const html = `<html>
+      <head>
+        <title>Thanks Page</title>
+        <style>
+          body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+          }
+        </style>
+      </head>
+      <body>
+        <h1>Thanks to Suhail Ser</h1>
+      </body>
+    </html>`;
+    
+    res.type('html').send(html);
+  })
+  .listen(PORT, () => console.log(`Listening on ${PORT}`));
+
+
+
+
+ /*
+ 
+express()
+  .use(express.static(path.join(__dirname, 'public')))
+  .set('views', path.join(__dirname, 'views'))
+  .set('view engine', 'ejs')
   .get('/', async (req, res) => {
     const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
     const page = await browser.newPage();
@@ -46,3 +78,6 @@ function convert(filename) {
     });
   });
 }
+
+
+*/
