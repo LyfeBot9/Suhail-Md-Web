@@ -1,35 +1,27 @@
 const express = require('express');
 const path = require('path');
-//const puppeteer = require('puppeteer');
-//const execFile = require('child_process').execFile;
+const puppeteer = require('puppeteer');
+const execFile = require('child_process').execFile;
 const fs = require('fs');
-
+const app = express();
 const PORT = process.env.PORT || 3000;
 //-----------------------------------------
+const { createCanvas } = require('canvas');
 
-const { execFile } = require('child_process');
-const puppeteer = require('puppeteer');
 
-const app = express();
-//const PORT = 3000;
 
-app.use(express.static(path.join(__dirname, 'public')));
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
-
-app.get('/', (req, res) => {
-  res.render('index');
-});
 
 app.get('/getss/:url', async (req, res) => {
-  const { url } = req.params;
-  const screenshotPath = '/tmp/screenshot.png';
-  
+  const url = req.params.url;
+
   try {
     const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
     const page = await browser.newPage();
     await page.setViewport({ width: 600, height: 800 });
     await page.goto(url);
+
+    const screenshotPath = '/tmp/screenshot.png';
+
     await page.screenshot({ path: screenshotPath });
     await browser.close();
 
@@ -41,7 +33,8 @@ app.get('/getss/:url', async (req, res) => {
       'Content-Type': 'image/png',
       'Content-Length': screenshot.length,
     });
-    res.end(screenshot);
+
+    return res.end(screenshot);
   } catch (error) {
     console.error(error);
     res.status(500).send('Internal Server Error');
@@ -63,10 +56,8 @@ function convert(filename) {
 }
 
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
-
-
 
 //----------------------------------------
 /*
