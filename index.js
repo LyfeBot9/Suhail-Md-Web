@@ -9,7 +9,7 @@ const PORT = process.env.PORT || 3000;
 const { createCanvas, loadImage, registerFont } = require('canvas');
 const GIFEncoder = require('gifencoder');
 registerFont(path.join(__dirname, 'public', 'Pacifico.ttf'), { family: 'Pacifico' });
-
+registerFont(path.join(__dirname, 'public', 'Flick Bold Hollow.ttf'), { family: 'Flick Bold Hollow' });
  
  
 express()
@@ -62,7 +62,7 @@ express()
     console.log("Text For TTP : " + text);
 
     // Create a new canvas with dimensions 400x400
-    const canvas = createCanvas(400, 400);
+    const canvas = createCanvas(200, 200);
     const ctx = canvas.getContext('2d');
 
     // Set canvas background color to black
@@ -71,7 +71,7 @@ express()
 
     // Set text properties
     const fontSize = 30;
-    const fontFamily = 'Pacifico';
+    const fontFamily = 'Flick Bold Hollow';
     ctx.font = `${fontSize}px ${fontFamily}`;
     ctx.fillStyle = 'white';
     ctx.textBaseline = 'middle';
