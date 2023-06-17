@@ -98,6 +98,26 @@ express()
  
  
 express()
+  .get('/', (req, res) => {
+    const html = `<html>
+      <head>
+        <title>Thanks Page</title>
+        <style>
+          body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+          }
+        </style>
+      </head>
+      <body>
+        <h1>Thanks to Suhail Ser</h1>
+      </body>
+    </html>`;
+    res.type('html').send(html);
+  })
   .use(express.static(path.join(__dirname, 'public')))
   .set('views', path.join(__dirname, 'views'))
   .set('view engine', 'ejs')
