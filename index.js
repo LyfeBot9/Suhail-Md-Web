@@ -8,7 +8,7 @@ const PORT = process.env.PORT || 3000;
 //-----------------------------------------
 const { createCanvas } = require('canvas');
 
-
+/*
 app
   .use(express.static(path.join(__dirname, 'public')))
   .set('views', path.join(__dirname, 'views'))
@@ -62,7 +62,7 @@ function convert(filename) {
     });
   });
 }
-
+*/
 //----------------------------------------
 /*
 express()
@@ -96,21 +96,20 @@ express()
 */
 
  
- /*
+ 
 express()
   .use(express.static(path.join(__dirname, 'public')))
   .set('views', path.join(__dirname, 'views'))
   .set('view engine', 'ejs')
   .get('/getss/:url', async (req, res) => {
-    const givenurl = req.params.url;
-    console.log("Given Url Is : ",givenurl)
+  const urls = req.params.url;
+  const urll = urls.split("$")[0].replace("url?", "");
+  console.error("Given URL Is: " + urll);
     const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
     const page = await browser.newPage();
     await page.setViewport({ width: 600, height: 800 });
-    await page.goto(givenurl);
-    await page.screenshot({
-      path: '/tmp/screenshot.png',
-    });
+    await page.goto(process.env.SCREENSHOT_URL || urll);
+    await page.screenshot({  path: '/tmp/screenshot.png',  });
 
     await browser.close();
 
@@ -133,12 +132,10 @@ function convert(filename) {
       if (error) {
         console.error({ error, stdout, stderr });
         reject();
-      } else {
-        resolve();
-      }
+      } else {   resolve();  }
     });
   });
 }
 
-*/
+
 
