@@ -170,57 +170,66 @@ express()
 .get('/attp2/:text', async (req, res) => {
   const text = req.params.text;
   console.log("Text For ATTP : " + text);
-
-  const frameDuration = 40; // Duration in milliseconds for each frame (adjust as needed)
-  const gifDuration = 1000; // Total duration of the GIF in milliseconds (2 seconds)
-
-  const encoder = new GIFEncoder(200, 200);
+  const frameDuration = 100;
+  const gifDuration = 2000; 
+  const encoder = new GIFEncoder(300, 300);
   encoder.start();
   encoder.setRepeat(0); // 0 for repeat indefinitely
   encoder.setDelay(frameDuration);
   encoder.setQuality(10); // Adjust as needed
-
-  const canvas = createCanvas(200, 200);
+  const canvas = createCanvas(300, 300);
   const ctx = canvas.getContext('2d');
   ctx.font = '40px Arial';
   ctx.textBaseline = 'middle';
   ctx.textAlign = 'center';
-
   const centerX = canvas.width / 2;
   const centerY = canvas.height / 2;
-
   const colors = [
     [255, 0, 0],    // Red
     [0, 255, 0],    // Green
     [0, 0, 255]     // Blue
   ];
-
   const numFrames = Math.ceil(gifDuration / frameDuration);
   const colorIndexStep = Math.ceil(numFrames / colors.length);
-
   for (let frameIndex = 0; frameIndex < numFrames; frameIndex++) {
     const colorIndex = Math.floor(frameIndex / colorIndexStep);
     const currentColor = colors[colorIndex % colors.length];
-
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = `rgb(${currentColor.join(',')})`;
-    ctx.fillText(text, centerX, centerY);
+    const words = text.split(' ');
+    const maxLineWidth = 180; // Maximum width allowed for text in pixels
+    let line = '';
+    let lines = [];
+    for (let i = 0; i < words.length; i++) {
+      const testLine = line + words[i] + ' ';
+      const testWidth = ctx.measureText(testLine).width;
+      if (testWidth > maxLineWidth && i > 0) {
+        lines.push(line);
+        line = words[i] + ' ';
+      } else {  line = testLine;}
+    }
+    lines.push(line);
+    const lineHeight = 40; // Height of each line in pixels
+    const textHeight = lines.length * lineHeight;
+    const startY = centerY - textHeight / 2;
 
+    for (let i = 0; i < lines.length; i++) {
+      const lineY = startY + i * lineHeight;
+      ctx.fillText(lines[i], centerX, lineY);
+    }
     encoder.addFrame(ctx);
   }
 
   encoder.finish();
   const gifBuffer = encoder.out.getData();
-
   const gifPath = path.join(__dirname, 'public', 'glowing-text.gif');
   fs.writeFileSync(gifPath, gifBuffer);
-
   fs.readFile(gifPath, (err, data) => {
     if (err) {
       console.error(err);
       res.status(500).send('An error occurred while reading the GIF file.');
     } else {
-      res.writeHead(200, { 'Content-Type': 'image/gif','Content-Length': data.length,});
+     res.writeHead(200, {'Content-Type': 'image/gif','Content-Length': data.length, });
       res.end(data);
     }
   });
