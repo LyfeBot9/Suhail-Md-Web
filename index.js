@@ -14,30 +14,27 @@ app
   .set('views', path.join(__dirname, 'views'))
   .set('view engine', 'ejs')
   .get('/getss/:url', async (req, res) => {
-    const givenUrl = req.params.url;
-    console.log('Given URL:', givenUrl);
+    const givenurl = decodeURIComponent(req.params.url);
+    console.log("Given URL Is: ", givenurl);
 
-    try {
-      const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
-      const page = await browser.newPage();
-      await page.setViewport({ width: 600, height: 800 });
-      await page.goto(givenUrl);
-      await page.screenshot({ path: '/tmp/screenshot.png' });
+    const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
+    const page = await browser.newPage();
+    await page.setViewport({ width: 600, height: 800 });
+    await page.goto(givenurl);
+    await page.screenshot({
+      path: '/tmp/screenshot.png',
+    });
 
-      await browser.close();
+    await browser.close();
 
-      await convert('/tmp/screenshot.png');
-      const screenshot = fs.readFileSync('/tmp/screenshot.png');
+    await convert('/tmp/screenshot.png');
+    const screenshot = fs.readFileSync('/tmp/screenshot.png');
 
-      res.writeHead(200, {
-        'Content-Type': 'image/png',
-        'Content-Length': screenshot.length,
-      });
-      res.end(screenshot);
-    } catch (error) {
-      console.error(error);
-      res.sendStatus(500);
-    }
+    res.writeHead(200, {
+      'Content-Type': 'image/png',
+      'Content-Length': screenshot.length,
+    });
+    res.end(screenshot);
   })
   .listen(PORT, () => console.log(`Listening on ${PORT}`));
 
