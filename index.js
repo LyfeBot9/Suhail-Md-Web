@@ -208,7 +208,7 @@ express()
     });
   })
   //--------------------------------------------------------------        attp
-  
+  /*
 .get('/ttp/:text', async (req, res) => {
   const text = req.params.text;
   console.log("Text For TTP : " + text);
@@ -326,7 +326,7 @@ express()
   });
   res.end(gif);
 });
-
+*/
   //-----------------------------------------------------------------
   .listen(PORT, () => console.log(`Listening on ${PORT}`));
 
