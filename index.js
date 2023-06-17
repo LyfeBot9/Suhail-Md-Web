@@ -191,12 +191,12 @@ express()
   const frameDuration = 100; // Duration in milliseconds for each frame (adjust as needed)
   const gifDuration = 2000; // Total duration of the GIF in milliseconds (2 seconds)
   const encoder = new GIFEncoder(200, 200);
- try{ encoder.createReadStream().pipe(fs.createWriteStream('app/public/gif.gif'));}catch (e){encoder.createReadStream().pipe(fs.createWriteStream('app/tmp/screenshot.gif'));}
+  encoder.createReadStream().pipe(fs.createWriteStream('app/public/glowing-text.gif'));
   encoder.start();
   encoder.setRepeat(0); // 0 for repeat indefinitely
   encoder.setDelay(frameDuration);
   encoder.setQuality(10); // Adjust as needed
-  const canvas = createCanvas(200, 200);
+  const canvas = createCanvas(300, 300);
   const ctx = canvas.getContext('2d');
   ctx.font = '40px Arial';
   ctx.textBaseline = 'middle';
