@@ -185,41 +185,47 @@ express()
     });
   })
  //------------------------------------------------------------
- .get('/attp/:text', (req, res) => {
+.get('/attp/:text', (req, res) => {
   const text = req.params.text;
-console.log("Attp Text : "+text);
-  const canvas = createCanvas(400, 400);
+  console.log("Text For ATTP : " + text);
+const canvasWidth = 400;
+const canvasHeight = 400;
+const frameDuration = 100; // Delay between frames in milliseconds
+const frames = 20;
+const gifDuration = frames * frameDuration;
+  const canvas = createCanvas(canvasWidth, canvasHeight);
   const context = canvas.getContext('2d');
   context.fillStyle = 'black';
-  context.fillRect(0, 0, 400, 400);
-  const frames = 20;
-  const frameDuration = 100;
-
-  const encoder = new gifencoder(400, 400);
-  const stream = encoder.createReadStream();
-  stream.pipe(fs.createWriteStream('/tmp/screenshot.gif'));
+  context.fillRect(0, 0, canvasWidth, canvasHeight);
+  const encoder = new gifencoder(canvasWidth, canvasHeight);
+  encoder.createReadStream().pipe(fs.createWriteStream('/tmp/screenshot.gif'));
   encoder.start();
-  encoder.setRepeat(0); 
-  encoder.setDelay(frameDuration); 
-  encoder.setQuality(10); 
+  encoder.setRepeat(0); // 0 = loop indefinitely
+  encoder.setDelay(frameDuration); // Delay between frames
+  encoder.setQuality(10); // Lower quality to reduce file size
 
   for (let i = 0; i < frames; i++) {
     const progress = i / frames;
     const radius = 50 + Math.sin(progress * Math.PI * 2) * 50;
     const alpha = 0.5 + Math.cos(progress * Math.PI * 2) * 0.5;
-    context.clearRect(0, 0, 400, 400);
+
+    context.clearRect(0, 0, canvasWidth, canvasHeight);
     context.shadowColor = `rgba(255, 255, 255, ${alpha})`;
     context.shadowBlur = radius;
     context.font = '40px Arial';
     context.textAlign = 'center';
     context.textBaseline = 'middle';
     context.fillStyle = 'white';
-    context.fillText(text, 200, 200);
+    context.fillText(text, canvasWidth / 2, canvasHeight / 2);
     encoder.addFrame(context);
   }
   encoder.finish();
-  res.writeHead(200, { 'Content-Type': 'image/gif',  });
-  stream.on('end', () => { res.end(); });
+  res.writeHead(200, {
+    'Content-Type': 'image/gif',
+    'Content-Disposition': 'attachment; filename=screenshot.gif',
+    'Content-Length': fs.statSync('/tmp/screenshot.gif').size,
+  });
+  fs.createReadStream('/tmp/screenshot.gif').pipe(res);
 })
   //--------------------------------------------------------------       
  .get('/attp2/:text', async (req, res) => {
