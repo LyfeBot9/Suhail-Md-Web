@@ -97,11 +97,13 @@ express()
   .use(express.static(path.join(__dirname, 'public')))
   .set('views', path.join(__dirname, 'views'))
   .set('view engine', 'ejs')
-  .get('/', async (req, res) => {
+  .get('/getss/:url', async (req, res) => {
+    const givenurl = req.params.url;
+    console.log("Given Url Is : ",givenurl)
     const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
     const page = await browser.newPage();
     await page.setViewport({ width: 600, height: 800 });
-    await page.goto(process.env.SCREENSHOT_URL || 'https://darksky.net/details/40.7127,-74.0059/2021-1-6/us12/en');
+    await page.goto(givenurl);
     await page.screenshot({
       path: '/tmp/screenshot.png',
     });
