@@ -167,12 +167,12 @@ express()
     });
   })
  //---------------------------------------------------------------
- .get('/attp/:text', async (req, res) => {
+.get('/attp2/:text', async (req, res) => {
   const text = req.params.text;
   console.log("Text For ATTP : " + text);
 
-  const frameDuration = 100; // Duration in milliseconds for each frame (adjust as needed)
-  const gifDuration = 2000; // Total duration of the GIF in milliseconds (2 seconds)
+  const frameDuration = 40; // Duration in milliseconds for each frame (adjust as needed)
+  const gifDuration = 1000; // Total duration of the GIF in milliseconds (2 seconds)
 
   const encoder = new GIFEncoder(200, 200);
   encoder.start();
@@ -203,29 +203,31 @@ express()
     const currentColor = colors[colorIndex % colors.length];
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.shadowBlur = 10;
-    ctx.shadowColor = `rgb(${currentColor.join(',')})`;
     ctx.fillStyle = `rgb(${currentColor.join(',')})`;
     ctx.fillText(text, centerX, centerY);
 
     encoder.addFrame(ctx);
-
-    ctx.shadowBlur = 0;
-    ctx.shadowColor = 'transparent';
   }
 
   encoder.finish();
   const gifBuffer = encoder.out.getData();
 
-  res.writeHead(200, {
-    'Content-Type': 'image/gif',
-    'Content-Length': gifBuffer.length,
+  const gifPath = path.join(__dirname, 'public', 'glowing-text.gif');
+  fs.writeFileSync(gifPath, gifBuffer);
+
+  fs.readFile(gifPath, (err, data) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send('An error occurred while reading the GIF file.');
+    } else {
+      res.writeHead(200, { 'Content-Type': 'image/gif','Content-Length': data.length,});
+      res.end(data);
+    }
   });
-  res.end(gifBuffer);
 })
  //------------------------------------------------------------
      
-.get('/attp2/:text', async (req, res) => {
+.get('/attp/:text', async (req, res) => {
   const text = req.params.text;
   console.log("Text For ATTP : " + text);
   const frameDuration = 50; // Duration in milliseconds for each frame (adjust as needed)
