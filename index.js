@@ -102,10 +102,7 @@ express()
   .set('views', path.join(__dirname, 'views'))
   .set('view engine', 'ejs')
   .get('/getss/:url', async (req, res) => {
-    console.log("request : "+ req) ;
-    console.log("Results : "+ res) ;
-  const urls = req.params.url;
-    console.log("Params Values : "+ req.params)
+  const urls = req.params.url; 
     console.log("Url : " + urls) ; 
   const urll = urls.split("$")[0];
   console.error("Given URL Is: " + urll);
@@ -131,7 +128,18 @@ express()
 
 function convert(filename) {
   return new Promise((resolve, reject) => {
-    const args = [filename, '-gravity', 'center', '-extent', '600x800', '-colorspace', 'gray', '-depth', '8', filename];
+    const args = [
+  filename,
+  '-gravity',
+  'center',
+  '-extent',
+  '600x800',
+  '-depth',
+  '8',
+  filename
+];
+
+   // const args = [filename, '-gravity', 'center', '-extent', '600x800', '-colorspace', 'gray', '-depth', '8', filename];
     execFile('convert', args, (error, stdout, stderr) => {
       if (error) {
         console.error({ error, stdout, stderr });
