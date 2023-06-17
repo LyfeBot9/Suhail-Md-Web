@@ -3,14 +3,14 @@ const path = require('path');
 const puppeteer = require('puppeteer');
 const execFile = require('child_process').execFile;
 const fs = require('fs');
-const app = express();
+//const app = express();
 const PORT = process.env.PORT || 3000;
 //-----------------------------------------
 const { createCanvas } = require('canvas');
 
 
 
-
+/*
 app.get('/getss/:url', async (req, res) => {
   const url = req.params.url;
 
@@ -58,7 +58,7 @@ function convert(filename) {
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
-
+*/
 //----------------------------------------
 /*
 express()
@@ -91,7 +91,7 @@ express()
 
 */
 
- /*
+ 
  
 express()
   .use(express.static(path.join(__dirname, 'public')))
@@ -135,4 +135,4 @@ function convert(filename) {
 }
 
 
-*/
+
