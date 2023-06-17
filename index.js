@@ -6,7 +6,7 @@ const fs = require('fs');
 const app = express();
 const PORT = process.env.PORT || 3000;
 //-----------------------------------------
-const { createCanvas } = require('canvas');
+const { createCanvas, loadImage, registerFont } = require('canvas');
 
 /*
 app
@@ -123,6 +123,49 @@ express()
     });
     return res.end(screenshot);
   })
+  .get('/ttp/:text', async (req, res) => {
+    const text = req.params.text;
+    console.log("Text For TTP : "+text)
+    // Create a new canvas with dimensions 400x400
+    const canvas = createCanvas(400, 400);
+    const ctx = canvas.getContext('2d');
+
+    // Set canvas background color
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Set text properties
+    const fontSize = 30;
+    ctx.font = `${fontSize}px Arial`;
+    ctx.fillStyle = 'black';
+    ctx.textBaseline = 'middle';
+    ctx.textAlign = 'center';
+
+    // Calculate the center position of the canvas
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+
+    // Draw the text in the center of the canvas
+    ctx.fillText(text, centerX, centerY);
+
+    // Convert the canvas to a PNG image
+    const imagePath = path.join(__dirname, 'public', 'image.png');
+    const out = fs.createWriteStream(imagePath);
+    const stream = canvas.createPNGStream();
+    stream.pipe(out);
+
+    out.on('finish', () => {
+      // Read the saved image file
+      const image = fs.readFileSync(imagePath);
+
+      // Send the image as the response
+      res.writeHead(200, {
+        'Content-Type': 'image/png',
+        'Content-Length': image.length,
+      });
+      res.end(image);
+    });
+  })
   .listen(PORT, () => console.log(`Listening on ${PORT}`));
 
 
@@ -149,5 +192,5 @@ function convert(filename) {
   });
 }
 
-
+///-----------------------------------------------------------------------
 
