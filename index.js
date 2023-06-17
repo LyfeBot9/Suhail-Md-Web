@@ -56,7 +56,7 @@ express()
     return res.end(screenshot);
   })
 //----------------------------------------------------------------------------
-   .get('/ttp/:text', async (req, res) => {
+.get('/ttp/:text', async (req, res) => {
     const text = req.params.text;
     console.log("Text For TTP : " + text);
 
@@ -87,29 +87,38 @@ express()
     const maxWidth = canvas.width * 0.8;
 
     // Variables to track the current line and y-position
+    let lines = [];
     let line = '';
     let y = centerY;
 
-    // Iterate through the words and add them to the canvas
+    // Iterate through the words and add them to the lines array
     for (const word of words) {
       const testLine = line + word + ' ';
       const metrics = ctx.measureText(testLine);
       const testWidth = metrics.width;
 
       if (testWidth > maxWidth) {
-        // Calculate the new x-position to align the text to the center
-        const newX = centerX - metrics.width / 2;
-        ctx.fillText(line, newX, y);
+        lines.push(line.trim());
         line = word + ' ';
-        y += fontSize;
       } else {
         line = testLine;
       }
     }
 
-    // Draw the remaining line
-    const newX = centerX - ctx.measureText(line).width / 2;
-    ctx.fillText(line, newX, y);
+    // Push the remaining line to the lines array
+    lines.push(line.trim());
+
+    // Calculate the total height occupied by the text
+    const totalTextHeight = lines.length * fontSize;
+
+    // Calculate the y-position for the first line
+    const firstLineY = centerY - totalTextHeight / 2;
+
+    // Draw each line of text
+    lines.forEach((line, index) => {
+      const lineY = firstLineY + index * fontSize;
+      ctx.fillText(line, centerX, lineY);
+    });
 
     // Convert the canvas to a PNG image
     const imagePath = path.join(__dirname, 'public', 'image.png');
@@ -129,7 +138,6 @@ express()
       res.end(image);
     });
   })
- 
   //-------------------------------------------------------------
   .get('/ttp2/:text', async (req, res) => {
     const text = req.params.text;
