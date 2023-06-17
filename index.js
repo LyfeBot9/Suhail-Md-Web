@@ -191,7 +191,7 @@ express()
   const frameDuration = 100; // Duration in milliseconds for each frame (adjust as needed)
   const gifDuration = 2000; // Total duration of the GIF in milliseconds (2 seconds)
   const encoder = new GIFEncoder(200, 200);
-  encoder.createReadStream().pipe(fs.createWriteStream('app/public/glowing-text.gif'));
+  encoder.createReadStream().pipe(fs.createWriteStream('./public/glowing-text.gif'));
   encoder.start();
   encoder.setRepeat(0); // 0 for repeat indefinitely
   encoder.setDelay(frameDuration);
