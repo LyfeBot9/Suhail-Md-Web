@@ -185,50 +185,65 @@ express()
     });
   })
   //--------------------------------------------------------------       
-    .get('/attp/:text', async (req, res) => {
-    const text = req.params.text;
-     console.log("Text For ATTP : " + text);
-    const frameDuration = 100; // Duration in milliseconds for each frame (adjust as needed)
-    const gifDuration = 2000; // Total duration of the GIF in milliseconds (2 seconds)
-    const encoder = new GIFEncoder(200, 200);
-    const gifPath = path.join(__dirname, 'public', 'glowing-text.gif');
-    const gifStream = fs.createWriteStream(gifPath);
-    encoder.createReadStream().pipe(gifStream);
-    encoder.start();
-    encoder.setRepeat(0); // 0 for repeat indefinitely
-    encoder.setDelay(frameDuration);
-    encoder.setQuality(10); // Adjust as needed
-    const canvas = createCanvas(200, 200);
-    const ctx = canvas.getContext('2d');
-    const fontSize = 30;
-    const fontFamily = 'Flick Bold Hollow';
-    ctx.font = `${fontSize}px ${fontFamily}`;
-    ctx.textBaseline = 'middle';
-    ctx.textAlign = 'center';
-    const centerX = canvas.width / 2;
-    const centerY = canvas.height / 2;
-    const colors = [ [255, 0, 0],[0, 255, 0],[0, 0, 255]  ];
-    const numFrames = Math.ceil(gifDuration / frameDuration);
-    const colorIndexStep = Math.ceil(numFrames / colors.length);
+ .get('/attp/:text', async (req, res) => {
+  const text = req.params.text;
+  console.log("Text For ATTP : " + text);
 
-    for (let frameIndex = 0; frameIndex < numFrames; frameIndex++)
-     {
-         const colorIndex = Math.floor(frameIndex / colorIndexStep);
-         const currentColor = colors[colorIndex % colors.length];
-         ctx.clearRect(0, 0, canvas.width, canvas.height);
-         ctx.shadowBlur = 10;
-         ctx.shadowColor = `rgb(${currentColor.join(',')})`;
-         ctx.fillStyle = `rgb(${currentColor.join(',')})`;
-         ctx.fillText(text, centerX, centerY);
-         encoder.addFrame(ctx);
-         ctx.shadowBlur = 0;
-         ctx.shadowColor = 'transparent';
-     }
-    encoder.finish();
-    const gifBuffer = fs.readFileSync(gifPath);
-    res.writeHead(200, {'Content-Type': 'image/gif',  'Content-Length': gifBuffer.length,});
-    res.end(gifBuffer);
-  })
+  const frameDuration = 100; // Duration in milliseconds for each frame (adjust as needed)
+  const gifDuration = 2000; // Total duration of the GIF in milliseconds (2 seconds)
+
+  const encoder = new GIFEncoder(200, 200);
+  encoder.start();
+  encoder.setRepeat(0); // 0 for repeat indefinitely
+  encoder.setDelay(frameDuration);
+  encoder.setQuality(10); // Adjust as needed
+
+  const canvas = createCanvas(200, 200);
+  const ctx = canvas.getContext('2d');
+
+  const fontSize = 30;
+  const fontFamily = 'Flick Bold Hollow';
+  ctx.font = `${fontSize}px ${fontFamily}`;
+  ctx.textBaseline = 'middle';
+  ctx.textAlign = 'center';
+
+  const centerX = canvas.width / 2;
+  const centerY = canvas.height / 2;
+
+  const colors = [
+    [255, 0, 0],    // Red
+    [0, 255, 0],    // Green
+    [0, 0, 255]     // Blue
+  ];
+
+  const numFrames = Math.ceil(gifDuration / frameDuration);
+  const colorIndexStep = Math.ceil(numFrames / colors.length);
+
+  for (let frameIndex = 0; frameIndex < numFrames; frameIndex++) {
+    const colorIndex = Math.floor(frameIndex / colorIndexStep);
+    const currentColor = colors[colorIndex % colors.length];
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = `rgb(${currentColor.join(',')})`;
+    ctx.fillStyle = `rgb(${currentColor.join(',')})`;
+    ctx.fillText(text, centerX, centerY);
+
+    encoder.addFrame(ctx);
+
+    ctx.shadowBlur = 0;
+    ctx.shadowColor = 'transparent';
+  }
+
+  encoder.finish();
+  const gifBuffer = encoder.out.getData();
+
+  res.writeHead(200, {
+    'Content-Type': 'image/gif',
+    'Content-Length': gifBuffer.length,
+  });
+  res.end(gifBuffer);
+})
   //-----------------------------------------------------------------
   .listen(PORT, () => console.log(`Listening on ${PORT}`));
 
