@@ -224,14 +224,16 @@ express()
 })
  //------------------------------------------------------------
      
- .get('/attp2/:text', async (req, res) => {
+.get('/attp2/:text', async (req, res) => {
   const text = req.params.text;
   console.log("Text For ATTP : " + text);
 
-  const frameDuration = 100; // Duration in milliseconds for each frame (adjust as needed)
-  const gifDuration = 2000; // Total duration of the GIF in milliseconds (2 seconds)
+  const frameDuration = 100; 
+  const gifDuration = 2000; 
 
   const encoder = new GIFEncoder(200, 200);
+  encoder.createReadStream().pipe(fs.createWriteStream('./public/glowing-text.gif'));
+
   encoder.start();
   encoder.setRepeat(0); // 0 for repeat indefinitely
   encoder.setDelay(frameDuration);
@@ -260,25 +262,18 @@ express()
     const currentColor = colors[colorIndex % colors.length];
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.shadowBlur = 10;
-    ctx.shadowColor = `rgb(${currentColor.join(',')})`;
+    ctx.fillStyle = 'white'; // Set background color
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = `rgb(${currentColor.join(',')})`;
     ctx.fillText(text, centerX, centerY);
-
     encoder.addFrame(ctx);
-
-    ctx.shadowBlur = 0;
-    ctx.shadowColor = 'transparent';
+    ctx.fillStyle = 'white'; // Reset background color for the next frame
   }
-
   encoder.finish();
-  const gifBuffer = encoder.out.getData();
-
-  res.writeHead(200, {
-    'Content-Type': 'image/gif',
-    'Content-Length': gifBuffer.length,
-  });
-  res.end(gifBuffer);
+  const gifData = encoder.out.getData();
+  fs.writeFileSync('./public/glowing-text.gif', gifData);
+  res.writeHead(200, { 'Content-Type': 'image/gif',  'Content-Length': gifData.length,  });
+  res.end(gifData);
 })
   //-----------------------------------------------------------------
   .listen(PORT, () => console.log(`Listening on ${PORT}`));
