@@ -7,7 +7,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 //-----------------------------------------
 const { createCanvas, loadImage, registerFont } = require('canvas');
-
+registerFont(path.join(__dirname, 'public', 'Pacifico.ttf'), { family: 'Pacifico' });
 
  
  
@@ -55,11 +55,11 @@ express()
     });
     return res.end(screenshot);
   })
-  //-------------------------------------------------------------
-  .get('/ttp/:text', async (req, res) => {
+//----------------------------------------------------------------------------
+   .get('/ttp/:text', async (req, res) => {
     const text = req.params.text;
     console.log("Text For TTP : " + text);
-    
+
     // Create a new canvas with dimensions 400x400
     const canvas = createCanvas(400, 400);
     const ctx = canvas.getContext('2d');
@@ -70,6 +70,81 @@ express()
 
     // Set text properties
     const fontSize = 30;
+    const fontFamily = 'Pacifico';
+    ctx.font = `${fontSize}px ${fontFamily}`;
+    ctx.fillStyle = 'white';
+    ctx.textBaseline = 'middle';
+    ctx.textAlign = 'center';
+
+    // Calculate the center position of the canvas
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+
+    // Split the text into words
+    const words = text.split(' ');
+
+    // Set the maximum width for the text (to wrap to the next line)
+    const maxWidth = canvas.width * 0.8;
+
+    // Variables to track the current line and y-position
+    let line = '';
+    let y = centerY;
+
+    // Iterate through the words and add them to the canvas
+    for (const word of words) {
+      const testLine = line + word + ' ';
+      const metrics = ctx.measureText(testLine);
+      const testWidth = metrics.width;
+
+      if (testWidth > maxWidth) {
+        // Calculate the new x-position to align the text to the center
+        const newX = centerX - metrics.width / 2;
+        ctx.fillText(line, newX, y);
+        line = word + ' ';
+        y += fontSize;
+      } else {
+        line = testLine;
+      }
+    }
+
+    // Draw the remaining line
+    const newX = centerX - ctx.measureText(line).width / 2;
+    ctx.fillText(line, newX, y);
+
+    // Convert the canvas to a PNG image
+    const imagePath = path.join(__dirname, 'public', 'image.png');
+    const out = fs.createWriteStream(imagePath);
+    const stream = canvas.createPNGStream();
+    stream.pipe(out);
+
+    out.on('finish', () => {
+      // Read the saved image file
+      const image = fs.readFileSync(imagePath);
+
+      // Send the image as the response
+      res.writeHead(200, {
+        'Content-Type': 'image/png',
+        'Content-Length': image.length,
+      });
+      res.end(image);
+    });
+  })
+ 
+  //-------------------------------------------------------------
+  .get('/ttp2/:text', async (req, res) => {
+    const text = req.params.text;
+    console.log("Text For TTP : " + text);
+    
+    // Create a new canvas with dimensions 400x400
+    const canvas = createCanvas(200, 200);
+    const ctx = canvas.getContext('2d');
+
+    // Set canvas background color to black
+    ctx.fillStyle = 'black';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Set text properties
+    const fontSize = 40;
     ctx.font = `${fontSize}px Arial`;
     ctx.fillStyle = 'white';
     ctx.textBaseline = 'middle';
@@ -99,9 +174,7 @@ express()
         ctx.fillText(line, centerX, y);
         line = word + ' ';
         y += fontSize;
-      } else {
-        line = testLine;
-      }
+      } else {    line = testLine;   }
     }
 
     // Draw the remaining line
