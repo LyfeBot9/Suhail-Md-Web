@@ -143,37 +143,21 @@ express()
   .get('/ttp2/:text', async (req, res) => {
     const text = req.params.text;
     console.log("Text For TTP : " + text);
-    
-    // Create a new canvas with dimensions 400x400
     const canvas = createCanvas(200, 200);
     const ctx = canvas.getContext('2d');
-
-    // Set canvas background color to black
     ctx.fillStyle = 'black';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Set text properties
     const fontSize = 40;
     ctx.font = `${fontSize}px Arial`;
     ctx.fillStyle = 'white';
     ctx.textBaseline = 'middle';
     ctx.textAlign = 'center';
-
-    // Calculate the center position of the canvas
     const centerX = canvas.width / 2;
     const centerY = canvas.height / 2;
-
-    // Split the text into words
     const words = text.split(' ');
-
-    // Set the maximum width for the text (to wrap to the next line)
     const maxWidth = canvas.width * 0.8;
-
-    // Variables to track the current line and y-position
     let line = '';
     let y = centerY;
-
-    // Iterate through the words and add them to the canvas
     for (const word of words) {
       const testLine = line + word + ' ';
       const metrics = ctx.measureText(testLine);
@@ -185,21 +169,14 @@ express()
         y += fontSize;
       } else {    line = testLine;   }
     }
-
-    // Draw the remaining line
     ctx.fillText(line, centerX, y);
-
-    // Convert the canvas to a PNG image
     const imagePath = path.join(__dirname, 'public', 'image.png');
     const out = fs.createWriteStream(imagePath);
     const stream = canvas.createPNGStream();
     stream.pipe(out);
 
     out.on('finish', () => {
-      // Read the saved image file
       const image = fs.readFileSync(imagePath);
-
-      // Send the image as the response
       res.writeHead(200, {
         'Content-Type': 'image/png',
         'Content-Length': image.length,
@@ -208,225 +185,50 @@ express()
     });
   })
   //--------------------------------------------------------------       
-  .get('/attp/:text', async (req, res) => {
+    .get('/attp/:text', async (req, res) => {
     const text = req.params.text;
-    console.log("Text For TTP : " + text);
-
-    // Create a new canvas with dimensions 200x200
+     console.log("Text For ATTP : " + text);
+    const frameDuration = 100; // Duration in milliseconds for each frame (adjust as needed)
+    const gifDuration = 2000; // Total duration of the GIF in milliseconds (2 seconds)
+    const encoder = new GIFEncoder(200, 200);
+    const gifPath = path.join(__dirname, 'public', 'glowing-text.gif');
+    const gifStream = fs.createWriteStream(gifPath);
+    encoder.createReadStream().pipe(gifStream);
+    encoder.start();
+    encoder.setRepeat(0); // 0 for repeat indefinitely
+    encoder.setDelay(frameDuration);
+    encoder.setQuality(10); // Adjust as needed
     const canvas = createCanvas(200, 200);
     const ctx = canvas.getContext('2d');
-
-    // Set canvas background color to black
-    ctx.fillStyle = 'black';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Set text properties
     const fontSize = 30;
     const fontFamily = 'Flick Bold Hollow';
     ctx.font = `${fontSize}px ${fontFamily}`;
     ctx.textBaseline = 'middle';
     ctx.textAlign = 'center';
-
-    // Calculate the center position of the canvas
     const centerX = canvas.width / 2;
     const centerY = canvas.height / 2;
+    const colors = [ [255, 0, 0],[0, 255, 0],[0, 0, 255]  ];
+    const numFrames = Math.ceil(gifDuration / frameDuration);
+    const colorIndexStep = Math.ceil(numFrames / colors.length);
 
-    // Split the text into words
-    const words = text.split(' ');
-
-    // Set the maximum width for the text (to wrap to the next line)
-    const maxWidth = canvas.width * 0.8;
-
-    // Variables to track the current line and y-position
-    let lines = [];
-    let line = '';
-    let y = centerY;
-
-    // Iterate through the words and add them to the lines array
-    for (const word of words) {
-      const testLine = line + word + ' ';
-      const metrics = ctx.measureText(testLine);
-      const testWidth = metrics.width;
-
-      if (testWidth > maxWidth) {
-        lines.push(line.trim());
-        line = word + ' ';
-      } else {
-        line = testLine;
-      }
-    }
-
-    // Push the remaining line to the lines array
-    lines.push(line.trim());
-
-    // Calculate the total height occupied by the text
-    const totalTextHeight = lines.length * fontSize;
-
-    // Calculate the y-position for the first line
-    const firstLineY = centerY - totalTextHeight / 2;
-
-    // Array to store the frames
-    const frames = [];
-
-    // Generate multiple frames with different glowing colors
-    for (let i = 0; i < 30; i++) {
-      const frameCanvas = createCanvas(canvas.width, canvas.height);
-      const frameCtx = frameCanvas.getContext('2d');
-
-      // Set canvas background color to black
-      frameCtx.fillStyle = 'black';
-      frameCtx.fillRect(0, 0, frameCanvas.width, frameCanvas.height);
-
-      // Calculate the current glow color based on the frame index
-      const red = Math.sin((i / 30) * Math.PI) * 255;
-      const green = Math.sin(((i + 10) / 30) * Math.PI) * 255;
-      const blue = Math.sin(((i + 20) / 30) * Math.PI) * 255;
-
-      // Set text color to the glowing color
-      frameCtx.fillStyle = `rgb(${red}, ${green}, ${blue})`;
-
-      // Draw each line of text
-      lines.forEach((line, index) => {
-        const lineY = firstLineY + index * fontSize;
-        frameCtx.fillText(line, centerX, lineY);
-      });
-
-      // Add the frame to the frames array
-      frames.push(frameCanvas.toBuffer());
-    }
-
-    // Save the frames as PNG images
-    const imagePaths = [];
-    frames.forEach((frame, index) => {
-      const imagePath = path.join(__dirname, 'public', `frame${index}.png`);
-      fs.writeFileSync(imagePath, frame);
-      imagePaths.push(imagePath);
-    });
-
-    // You can use external software to combine the PNG frames into a GIF
-
-    res.send('Frames generated successfully!');
-  });
-
-/*
-.get('/ttp/:text', async (req, res) => {
-  const text = req.params.text;
-  console.log("Text For TTP : " + text);
-
-  const { createCanvas } = require('canvas');
-  const GIFEncoder = require('gifencoder');
-  const fs = require('fs');
-  const path = require('path');
-
-  const colorFrames = [
-    [255, 0, 0], // Red
-    [0, 255, 0], // Green
-    [0, 0, 255] // Blue
-  ];
-
-  const getColorFrame = (index) => {
-    const colorIndex = index % colorFrames.length;
-    return colorFrames[colorIndex];
-  };
-
-  const createTextGIF = (text) => {
-    const words = text.split(' ');
-
-    // Set canvas dimensions
-    const canvasWidth = 400;
-    const canvasHeight = 400;
-
-    // Set text properties
-    const fontSize = 30;
-    const fontFamily = 'Pacifico';
-
-    // Create a new GIF encoder
-    const encoder = new GIFEncoder(canvasWidth, canvasHeight);
-    encoder.createReadStream().pipe(fs.createWriteStream('public/text.gif'));
-
-    encoder.start();
-    encoder.setRepeat(0); // 0 for repeat, -1 for no-repeat
-    encoder.setDelay(500); // Delay between frames (in ms)
-
-    // Iterate through frames and set the color
-    for (let frameIndex = 0; frameIndex < colorFrames.length; frameIndex++) {
-      const frameColor = getColorFrame(frameIndex);
-
-      // Create a new canvas for each frame
-      const canvas = createCanvas(canvasWidth, canvasHeight);
-      const ctx = canvas.getContext('2d');
-
-      // Set canvas background color to black
-      ctx.fillStyle = 'black';
-      ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-
-      // Set text properties
-      ctx.font = `${fontSize}px ${fontFamily}`;
-      ctx.textBaseline = 'middle';
-      ctx.textAlign = 'center';
-
-      // Calculate the center position of the canvas
-      const centerX = canvasWidth / 2;
-      const centerY = canvasHeight / 2;
-
-      // Set the color for the frame
-      const [r, g, b] = frameColor;
-      ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
-
-      // Variables to track the current line and y-position
-      let lines = [];
-      let line = '';
-      let y = centerY;
-
-      // Iterate through the words and add them to the lines array
-      for (const word of words) {
-        const testLine = line + word + ' ';
-        const metrics = ctx.measureText(testLine);
-        const testWidth = metrics.width;
-
-        if (testWidth > canvasWidth * 0.8) {
-          lines.push(line.trim());
-          line = word + ' ';
-        } else {
-          line = testLine;
-        }
-      }
-
-      // Push the remaining line to the lines array
-      lines.push(line.trim());
-
-      // Calculate the total height occupied by the text
-      const totalTextHeight = lines.length * fontSize;
-
-      // Calculate the y-position for the first line
-      const firstLineY = centerY - totalTextHeight / 2;
-
-      // Draw each line of text
-      lines.forEach((line, index) => {
-        const lineY = firstLineY + index * fontSize;
-        ctx.fillText(line, centerX, lineY);
-      });
-
-      // Add the frame to the GIF encoder
-      encoder.addFrame(ctx);
-    }
-
+    for (let frameIndex = 0; frameIndex < numFrames; frameIndex++)
+     {
+         const colorIndex = Math.floor(frameIndex / colorIndexStep);
+         const currentColor = colors[colorIndex % colors.length];
+         ctx.clearRect(0, 0, canvas.width, canvas.height);
+         ctx.shadowBlur = 10;
+         ctx.shadowColor = `rgb(${currentColor.join(',')})`;
+         ctx.fillStyle = `rgb(${currentColor.join(',')})`;
+         ctx.fillText(text, centerX, centerY);
+         encoder.addFrame(ctx);
+         ctx.shadowBlur = 0;
+         ctx.shadowColor = 'transparent';
+     }
     encoder.finish();
-  };
-
-  // Create the GIF with changing colors for the text
-  createTextGIF(text);
-
-  // Send the GIF as the response
-  const gifPath = path.join(__dirname, 'public', 'text.gif');
-  const gif = fs.readFileSync(gifPath);
-  res.writeHead(200, {
-    'Content-Type': 'image/gif',
-    'Content-Length': gif.length,
+    const gifBuffer = fs.readFileSync(gifPath);
+    res.writeHead(200, {'Content-Type': 'image/gif',  'Content-Length': gifBuffer.length,});
+    res.end(gifBuffer);
   });
-  res.end(gif);
-});
-*/
   //-----------------------------------------------------------------
   .listen(PORT, () => console.log(`Listening on ${PORT}`));
 
