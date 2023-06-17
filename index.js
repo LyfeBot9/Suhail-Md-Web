@@ -185,55 +185,14 @@ express()
     });
   })
  //---------------------------------------------------------------
-.get('/attp/:text', async (req, res) => {
+ .get('/attp/:text', async (req, res) => {
   const text = req.params.text;
   console.log("Text For ATTP : " + text);
+
   const frameDuration = 100; // Duration in milliseconds for each frame (adjust as needed)
   const gifDuration = 2000; // Total duration of the GIF in milliseconds (2 seconds)
-  const encoder = new GIFEncoder(200, 200);
-  encoder.createReadStream().pipe(fs.createWriteStream('./public/glowing-text.gif'));
-  encoder.start();
-  encoder.setRepeat(0); // 0 for repeat indefinitely
-  encoder.setDelay(frameDuration);
-  encoder.setQuality(10); // Adjust as needed
-  const canvas = createCanvas(300, 300);
-  const ctx = canvas.getContext('2d');
-  ctx.font = '40px Arial';
-  ctx.textBaseline = 'middle';
-  ctx.textAlign = 'center';
-  const centerX = canvas.width / 2;
-  const centerY = canvas.height / 2;
-  const colors = [  [255, 0, 0], [0, 255, 0],    [0, 0, 255]     ];
-  const numFrames = Math.ceil(gifDuration / frameDuration);
-  const colorIndexStep = Math.ceil(numFrames / colors.length);
-  for (let frameIndex = 0; frameIndex < numFrames; frameIndex++) {
-    const colorIndex = Math.floor(frameIndex / colorIndexStep);
-    const currentColor = colors[colorIndex % colors.length];
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = 'white'; // Set background color
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = `rgb(${currentColor.join(',')})`;
-    ctx.fillText(text, centerX, centerY);
-    encoder.addFrame(ctx);
-    ctx.fillStyle = 'white'; // Reset background color for the next frame
-  }
-  encoder.finish();
-  res.writeHead(200, { 'Content-Type': 'image/gif', 'Content-Length': encoder.raw.length, });
-  res.end(encoder.raw);
-})
- //------------------------------------------------------------
-     
-.get('/attp2/:text', async (req, res) => {
-  const text = req.params.text;
-  console.log("Text For ATTP : " + text);
-
-  const frameDuration = 100; 
-  const gifDuration = 2000; 
 
   const encoder = new GIFEncoder(200, 200);
-  encoder.createReadStream().pipe(fs.createWriteStream('./public/glowing-text.gif'));
-
   encoder.start();
   encoder.setRepeat(0); // 0 for repeat indefinitely
   encoder.setDelay(frameDuration);
@@ -262,9 +221,63 @@ express()
     const currentColor = colors[colorIndex % colors.length];
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = `rgb(${currentColor.join(',')})`;
+    ctx.fillStyle = `rgb(${currentColor.join(',')})`;
+    ctx.fillText(text, centerX, centerY);
+
+    encoder.addFrame(ctx);
+
+    ctx.shadowBlur = 0;
+    ctx.shadowColor = 'transparent';
+  }
+
+  encoder.finish();
+  const gifBuffer = encoder.out.getData();
+
+  res.writeHead(200, {
+    'Content-Type': 'image/gif',
+    'Content-Length': gifBuffer.length,
+  });
+  res.end(gifBuffer);
+})
+ //------------------------------------------------------------
+     
+.get('/attp2/:text', async (req, res) => {
+  const text = req.params.text;
+  console.log("Text For ATTP : " + text);
+
+  const frameDuration = 100; // Duration in milliseconds for each frame (adjust as needed)
+  const gifDuration = 2000; // Total duration of the GIF in milliseconds (2 seconds)
+  const encoder = new GIFEncoder(200, 200);
+  encoder.createReadStream().pipe(fs.createWriteStream('./public/glowing-text.gif'));
+  encoder.start();
+  encoder.setRepeat(0); // 0 for repeat indefinitely
+  encoder.setDelay(frameDuration);
+  encoder.setQuality(10); // Adjust as needed
+  const canvas = createCanvas(200, 200);
+  const ctx = canvas.getContext('2d');
+  ctx.font = '40px Arial';
+  ctx.textBaseline = 'middle';
+  ctx.textAlign = 'center';
+  const centerX = canvas.width / 2;
+  const centerY = canvas.height / 2;
+  const colors = [
+    [255, 0, 0],    // Red
+    [0, 255, 0],    // Green
+    [0, 0, 255]     // Blue
+  ];
+  const numFrames = Math.ceil(gifDuration / frameDuration);
+  const colorIndexStep = Math.ceil(numFrames / colors.length);
+
+  for (let frameIndex = 0; frameIndex < numFrames; frameIndex++) {
+    const colorIndex = Math.floor(frameIndex / colorIndexStep);
+    const currentColor = colors[colorIndex % colors.length];
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = 'white'; // Set background color
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = `rgb(${currentColor.join(',')})`;
+    await loadImage('');
     ctx.fillText(text, centerX, centerY);
     encoder.addFrame(ctx);
     ctx.fillStyle = 'white'; // Reset background color for the next frame
@@ -272,7 +285,7 @@ express()
   encoder.finish();
   const gifData = encoder.out.getData();
   fs.writeFileSync('./public/glowing-text.gif', gifData);
-  res.writeHead(200, { 'Content-Type': 'image/gif',  'Content-Length': gifData.length,  });
+  res.writeHead(200, {  'Content-Type': 'image/gif',  'Content-Length': gifData.length, });
   res.end(gifData);
 })
   //-----------------------------------------------------------------
