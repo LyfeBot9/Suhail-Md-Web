@@ -15,7 +15,8 @@
     "fs-extra": "^10.1.0",
     "child_process": "^1.0.2",
     "path": "^0.12.7",
-    "ejs":"3.1.9",
+    "ejs":"^3.1.9",
+    "gifencoder":"^2.0.1",
     "puppeteer": "^5.4.1"
   },
   "repository": {
