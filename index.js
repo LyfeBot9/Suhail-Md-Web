@@ -9,41 +9,52 @@ const PORT = process.env.PORT || 3000;
 const { createCanvas } = require('canvas');
 
 
+app
+  .use(express.static(path.join(__dirname, 'public')))
+  .set('views', path.join(__dirname, 'views'))
+  .set('view engine', 'ejs')
+  .get('/getss/:url', async (req, res) => {
+    const givenUrl = req.params.url;
+    console.log('Given URL:', givenUrl);
 
+    try {
+      const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
+      const page = await browser.newPage();
+      await page.setViewport({ width: 600, height: 800 });
+      await page.goto(givenUrl);
+      await page.screenshot({ path: '/tmp/screenshot.png' });
 
-app.get('/getss/:url', async (req, res) => {
-  const url = req.params.url;
+      await browser.close();
 
-  try {
-    const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
-    const page = await browser.newPage();
-    await page.setViewport({ width: 600, height: 800 });
-    await page.goto(url);
+      await convert('/tmp/screenshot.png');
+      const screenshot = fs.readFileSync('/tmp/screenshot.png');
 
-    const screenshotPath = '/tmp/screenshot.png';
-
-    await page.screenshot({ path: screenshotPath });
-    await browser.close();
-
-    await convert(screenshotPath);
-
-    const screenshot = fs.readFileSync(screenshotPath);
-
-    res.writeHead(200, {
-      'Content-Type': 'image/png',
-      'Content-Length': screenshot.length,
-    });
-
-    return res.end(screenshot);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Internal Server Error');
-  }
-});
+      res.writeHead(200, {
+        'Content-Type': 'image/png',
+        'Content-Length': screenshot.length,
+      });
+      res.end(screenshot);
+    } catch (error) {
+      console.error(error);
+      res.sendStatus(500);
+    }
+  })
+  .listen(PORT, () => console.log(`Listening on ${PORT}`));
 
 function convert(filename) {
   return new Promise((resolve, reject) => {
-    const args = [filename, '-gravity', 'center', '-extent', '600x800', '-colorspace', 'gray', '-depth', '8', filename];
+    const args = [
+      filename,
+      '-gravity',
+      'center',
+      '-extent',
+      '600x800',
+      '-colorspace',
+      'gray',
+      '-depth',
+      '8',
+      filename,
+    ];
     execFile('convert', args, (error, stdout, stderr) => {
       if (error) {
         console.error({ error, stdout, stderr });
@@ -54,10 +65,6 @@ function convert(filename) {
     });
   });
 }
-
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
 
 //----------------------------------------
 /*
