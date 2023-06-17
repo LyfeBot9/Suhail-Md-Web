@@ -12,8 +12,8 @@ registerFont(path.join(__dirname, 'public', 'Pacifico.ttf'), { family: 'Pacifico
 registerFont(path.join(__dirname, 'public', 'Flick Bold Hollow.ttf'), { family: 'Flick Bold Hollow' });
  
  
-//express()
-  app.get('/', (req, res) => {
+express()
+  .get('/', (req, res) => {
     const html = `<html>
       <head>
         <title>Thanks Page</title>
@@ -34,10 +34,10 @@ registerFont(path.join(__dirname, 'public', 'Flick Bold Hollow.ttf'), { family: 
     res.type('html').send(html);
   })
   //----------------------------------------------------------
-  app.use(express.static(path.join(__dirname, 'public')))
-  app.set('views', path.join(__dirname, 'views'))
-  app.set('view engine', 'ejs')
-  app.get('/getss/:url', async (req, res) => {
+  .use(express.static(path.join(__dirname, 'public')))
+  .set('views', path.join(__dirname, 'views'))
+  .set('view engine', 'ejs')
+  .get('/getss/:url', async (req, res) => {
   const urls = req.params.url; 
     console.log("Url : " + urls) ; 
   const urll = urls.split("$")[0];
@@ -57,7 +57,7 @@ registerFont(path.join(__dirname, 'public', 'Flick Bold Hollow.ttf'), { family: 
     return res.end(screenshot);
   })
 //----------------------------------------------------------------------------
-app.get('/ttp/:text', async (req, res) => {
+.get('/ttp/:text', async (req, res) => {
     const text = req.params.text;
     console.log("Text For TTP : " + text);
 
@@ -140,7 +140,7 @@ app.get('/ttp/:text', async (req, res) => {
     });
   })
   //-------------------------------------------------------------
-  app.get('/ttp2/:text', async (req, res) => {
+  .get('/ttp2/:text', async (req, res) => {
     const text = req.params.text;
     console.log("Text For TTP : " + text);
     const canvas = createCanvas(200, 200);
@@ -185,7 +185,7 @@ app.get('/ttp/:text', async (req, res) => {
     });
   })
   //--------------------------------------------------------------       
-    app.get('/attp/:text', async (req, res) => {
+    .get('/attp/:text', async (req, res) => {
     const text = req.params.text;
      console.log("Text For ATTP : " + text);
     const frameDuration = 100; // Duration in milliseconds for each frame (adjust as needed)
@@ -228,9 +228,9 @@ app.get('/ttp/:text', async (req, res) => {
     const gifBuffer = fs.readFileSync(gifPath);
     res.writeHead(200, {'Content-Type': 'image/gif',  'Content-Length': gifBuffer.length,});
     res.end(gifBuffer);
-  });
+  })
   //-----------------------------------------------------------------
-  app.listen(PORT, () => console.log(`Listening on ${PORT}`));
+  .listen(PORT, () => console.log(`Listening on ${PORT}`));
 
 
 function convert(filename) {
