@@ -102,13 +102,17 @@ express()
   .set('views', path.join(__dirname, 'views'))
   .set('view engine', 'ejs')
   .get('/getss/:url', async (req, res) => {
+    console.log("request : "+ req) ;
+    console.log("Results : "+ res) ;
   const urls = req.params.url;
-  const urll = urls.split("$")[0].replace("url?", "");
+    console.log("Params Values : "+ req.params)
+    console.log("Url : " + urls) ; 
+  const urll = urls.split("$")[0];
   console.error("Given URL Is: " + urll);
     const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
     const page = await browser.newPage();
     await page.setViewport({ width: 600, height: 800 });
-    await page.goto(process.env.SCREENSHOT_URL || urll);
+    await page.goto(process.env.SCREENSHOT_URL || urll.replace("url?", ""));
     await page.screenshot({  path: '/tmp/screenshot.png',  });
 
     await browser.close();
