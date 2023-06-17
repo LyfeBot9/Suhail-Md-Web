@@ -188,6 +188,7 @@ express()
 .get('/attp/:text', (req, res) => {
   const text = req.params.text;
   console.log("Text For ATTP : " + text);
+const gifencoder = require('gifencoder');
 const canvasWidth = 400;
 const canvasHeight = 400;
 const frameDuration = 100; // Delay between frames in milliseconds
