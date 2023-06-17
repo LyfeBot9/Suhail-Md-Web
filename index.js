@@ -228,8 +228,8 @@ express()
 .get('/attp2/:text', async (req, res) => {
   const text = req.params.text;
   console.log("Text For ATTP : " + text);
-  const frameDuration = 100; // Duration in milliseconds for each frame (adjust as needed)
-  const gifDuration = 2000; // Total duration of the GIF in milliseconds (2 seconds)
+  const frameDuration = 50; // Duration in milliseconds for each frame (adjust as needed)
+  const gifDuration = 1000; // Total duration of the GIF in milliseconds (2 seconds)
   const encoder = new GIFEncoder(200, 200);
   encoder.start();
   encoder.setRepeat(0); // 0 for repeat indefinitely
@@ -266,16 +266,7 @@ express()
 
 function convert(filename) {
   return new Promise((resolve, reject) => {
-    const args = [
-  filename,
-  '-gravity',
-  'center',
-  '-extent',
-  '600x800',
-  '-depth',
-  '8',
-  filename
-];
+    const args = [filename,'-gravity','center','-extent','600x800','-depth','8',filename];
 
    // const args = [filename, '-gravity', 'center', '-extent', '600x800', '-colorspace', 'gray', '-depth', '8', filename];
     execFile('convert', args, (error, stdout, stderr) => {
