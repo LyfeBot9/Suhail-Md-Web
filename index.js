@@ -12,8 +12,8 @@ registerFont(path.join(__dirname, 'public', 'Pacifico.ttf'), { family: 'Pacifico
 registerFont(path.join(__dirname, 'public', 'Flick Bold Hollow.ttf'), { family: 'Flick Bold Hollow' });
  
  
-express()
-  .get('/', (req, res) => {
+//express()
+  app.get('/', (req, res) => {
     const html = `<html>
       <head>
         <title>Thanks Page</title>
@@ -34,10 +34,10 @@ express()
     res.type('html').send(html);
   })
   //----------------------------------------------------------
-  .use(express.static(path.join(__dirname, 'public')))
-  .set('views', path.join(__dirname, 'views'))
-  .set('view engine', 'ejs')
-  .get('/getss/:url', async (req, res) => {
+  app.use(express.static(path.join(__dirname, 'public')))
+  app.set('views', path.join(__dirname, 'views'))
+  app.set('view engine', 'ejs')
+  app.get('/getss/:url', async (req, res) => {
    const { text } = req.query;
   console.log("Url text : " + text) ; 
     const encodedUrl = req.params.url;
@@ -56,15 +56,12 @@ express()
     await browser.close();
     await convert('/tmp/screenshot.png');
     screenshot = fs.readFileSync('/tmp/screenshot.png');
-    res.writeHead(200, {
-      'Content-Type': 'image/png',
-      'Content-Length': screenshot.length,
-    });
+    res.writeHead(200, {'Content-Type': 'image/png','Content-Length': screenshot.length, });
     return res.end(screenshot);
   })
 //----------------------------------------------------------------------------
- .use(express.urlencoded({ extended: true })) // Middleware to parse form data
- .get('/ttp', (req, res) => {
+ app.use(express.urlencoded({ extended: true })) // Middleware to parse form data
+ app.get('/ttp', (req, res) => {
     const html = `<html>
       <head>
         <title>Thanks Page</title>
@@ -88,13 +85,11 @@ express()
     res.type('html').send(html);
   })
  //--------------------------------------------------------------------------
-.get('/ttp/:text', async (req, res) => {
+app.get('/ttp/:text', async (req, res) => {
     const text = req.params.text;
     console.log("Text For TTP : " + text);
-    // Create a new canvas with dimensions 400x400
-    const canvas = createCanvas(200, 200);
+    const canvas = createCanvas(300, 300);
     const ctx = canvas.getContext('2d');
-    // Set canvas background color to black
     ctx.fillStyle = 'black';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     // Set text properties
@@ -104,18 +99,13 @@ express()
     ctx.fillStyle = 'white';
     ctx.textBaseline = 'middle';
     ctx.textAlign = 'center';
-    // Calculate the center position of the canvas
     const centerX = canvas.width / 2;
     const centerY = canvas.height / 2;
-    // Split the text into words
     const words = text.split(' ');
-    // Set the maximum width for the text (to wrap to the next line)
     const maxWidth = canvas.width * 0.8;
-    // Variables to track the current line and y-position
     let lines = [];
     let line = '';
     let y = centerY;
-    // Iterate through the words and add them to the lines array
     for (const word of words) {
       const testLine = line + word + ' ';
       const metrics = ctx.measureText(testLine);
@@ -125,13 +115,9 @@ express()
         line = word + ' ';
       } else { line = testLine; }
     }
-    // Push the remaining line to the lines array
     lines.push(line.trim());
-    // Calculate the total height occupied by the text
     const totalTextHeight = lines.length * fontSize;
-    // Calculate the y-position for the first line
     const firstLineY = centerY - totalTextHeight / 2;
-    // Draw each line of text
     lines.forEach((line, index) => {
       const lineY = firstLineY + index * fontSize;
       ctx.fillText(line, centerX, lineY);
@@ -142,18 +128,13 @@ express()
     const stream = canvas.createPNGStream();
     stream.pipe(out);
     out.on('finish', () => {
-      // Read the saved image file
       const image = fs.readFileSync(imagePath);
-      // Send the image as the response
-      res.writeHead(200, {
-        'Content-Type': 'image/png',
-        'Content-Length': image.length,
-      });
+      res.writeHead(200, { 'Content-Type': 'image/png','Content-Length': image.length,});
       res.end(image);
     });
   })
   //-------------------------------------------------------------
-  .get('/ttp2/:text', async (req, res) => {
+  app.get('/ttp2/:text', async (req, res) => {
     const text = req.params.text;
     console.log("Text For TTP : " + text);
     const canvas = createCanvas(200, 200);
@@ -198,7 +179,7 @@ express()
     });
   })
  //---------------------------------------------------------------
-.get('/attp2/:text', async (req, res) => {
+app.get('/attp2/:text', async (req, res) => {
   const text = req.params.text;
   console.log("Text For ATTP : " + text);
   const frameDuration = 100;
@@ -267,7 +248,7 @@ express()
 })
  //------------------------------------------------------------
      
-.get('/attp/:text', async (req, res) => {
+app.get('/attp/:text', async (req, res) => {
   const text = req.params.text;
   console.log("Text For ATTP : " + text);
   const frameDuration = 50; // Duration in milliseconds for each frame (adjust as needed)
@@ -303,7 +284,7 @@ express()
   res.end(gifBuffer);
 })
   //-----------------------------------------------------------------
-  .listen(PORT, () => console.log(`Listening on ${PORT}`));
+  app.listen(PORT, () => console.log(`Listening on ${PORT}`));
 
 
 function convert(filename) {
