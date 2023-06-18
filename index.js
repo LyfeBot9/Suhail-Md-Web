@@ -41,12 +41,12 @@ express()
   //const urls = req.params.url; 
     const url = req.query.url;
     console.log("Url : " + url) ; 
-    const urll = url.split("$")[0];
-    console.error("Given URL Is: " + urll);
+    //const urll = url.split("$")[0];
+   // console.error("Given URL Is: " + urll);
     const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
     const page = await browser.newPage();
     await page.setViewport({ width: 600, height: 800 });
-    await page.goto(process.env.SCREENSHOT_URL || urll.replace("url?", ""));
+    await page.goto(process.env.SCREENSHOT_URL || url);
     await page.screenshot({  path: '/tmp/screenshot.png',  });
     await browser.close();
     await convert('/tmp/screenshot.png');
@@ -58,7 +58,7 @@ express()
     return res.end(screenshot);
   })
 //----------------------------------------------------------------------------
-  .get('/', (req, res) => {
+  .get('/ttp', (req, res) => {
     const html = `<html>
       <head>
         <title>Thanks Page</title>
