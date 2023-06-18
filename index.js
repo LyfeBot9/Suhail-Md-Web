@@ -38,6 +38,8 @@ express()
   .set('views', path.join(__dirname, 'views'))
   .set('view engine', 'ejs')
   .get('/getss/:url', async (req, res) => {
+   const { text } = req.query;
+  console.log("Url text : " + text) ; 
     const encodedUrl = req.params.url;
   const decodedUrl = decodeURIComponent(encodedUrl);
   console.log("Encoded URL : ", decodedUrl);
@@ -87,8 +89,6 @@ express()
   })
  //--------------------------------------------------------------------------
 .get('/ttp/:text', async (req, res) => {
-    const { text } = req.query;
-   console.log("text : " + text) ; 
     const text = req.params.text;
     console.log("Text For TTP : " + text);
     // Create a new canvas with dimensions 400x400
