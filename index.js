@@ -38,10 +38,11 @@ express()
   .set('views', path.join(__dirname, 'views'))
   .set('view engine', 'ejs')
   .get('/getss/:url', async (req, res) => {
-  const urls = req.params.url; 
-    console.log("Url : " + urls) ; 
-  const urll = urls.split("$")[0];
-  console.error("Given URL Is: " + urll);
+  //const urls = req.params.url; 
+    const url = req.query.url;
+    console.log("Url : " + url) ; 
+    const urll = url.split("$")[0];
+    console.error("Given URL Is: " + urll);
     const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
     const page = await browser.newPage();
     await page.setViewport({ width: 600, height: 800 });
@@ -57,7 +58,7 @@ express()
     return res.end(screenshot);
   })
 //----------------------------------------------------------------------------
-.get('/ttp', (req, res) => {
+  .get('/', (req, res) => {
     const html = `<html>
       <head>
         <title>Thanks Page</title>
@@ -72,10 +73,24 @@ express()
         </style>
       </head>
       <body>
-        <form action="/ttp" method="get">
-          <input type="text" name="text" placeholder="Enter text" />
+        <form id="textForm">
+          <input type="text" id="textInput" placeholder="Enter text" />
           <button type="submit">Submit</button>
         </form>
+
+        <script>
+          document.getElementById('textForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const text = document.getElementById('textInput').value;
+            fetch('/ttp/' + encodeURIComponent(text))
+              .then(response => response.text())
+              .then(html => {
+                document.open();
+                document.write(html);
+                document.close();
+              });
+          });
+        </script>
       </body>
     </html>`;
     res.type('html').send(html);
