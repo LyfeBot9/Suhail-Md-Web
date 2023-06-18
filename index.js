@@ -38,8 +38,11 @@ express()
   .set('views', path.join(__dirname, 'views'))
   .set('view engine', 'ejs')
   .get('/getss/:url', async (req, res) => {
+    const encodedUrl = req.params.url;
+  const decodedUrl = decodeURIComponent(encodedUrl);
+  console.log("Encoded URL : ", decodedUrl);
   //const urls = req.params.url; 
-    const url = req.query.url;
+    const url = req.query.hhtps;
     console.log("Url : " + url) ; 
     //const urll = url.split("$")[0];
    // console.error("Given URL Is: " + urll);
@@ -58,7 +61,8 @@ express()
     return res.end(screenshot);
   })
 //----------------------------------------------------------------------------
-  .get('/ttp', (req, res) => {
+ .use(express.urlencoded({ extended: true })) // Middleware to parse form data
+ .get('/ttp', (req, res) => {
     const html = `<html>
       <head>
         <title>Thanks Page</title>
@@ -73,30 +77,18 @@ express()
         </style>
       </head>
       <body>
-        <form id="textForm">
-          <input type="text" id="textInput" placeholder="Enter text" />
+         <form action="/ttp/:text" method="get">
+          <input type="text" name="text" placeholder="Enter text" />
           <button type="submit">Submit</button>
         </form>
-
-        <script>
-          document.getElementById('textForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const text = document.getElementById('textInput').value;
-            fetch('/ttp/' + encodeURIComponent(text))
-              .then(response => response.text())
-              .then(html => {
-                document.open();
-                document.write(html);
-                document.close();
-              });
-          });
-        </script>
       </body>
     </html>`;
     res.type('html').send(html);
   })
  //--------------------------------------------------------------------------
 .get('/ttp/:text', async (req, res) => {
+    const { text } = req.query;
+   console.log("text : " + text) ; 
     const text = req.params.text;
     console.log("Text For TTP : " + text);
     // Create a new canvas with dimensions 400x400
