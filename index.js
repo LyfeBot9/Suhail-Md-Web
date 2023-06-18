@@ -57,6 +57,30 @@ express()
     return res.end(screenshot);
   })
 //----------------------------------------------------------------------------
+.get('/ttp', (req, res) => {
+    const html = `<html>
+      <head>
+        <title>Thanks Page</title>
+        <style>
+          body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+          }
+        </style>
+      </head>
+      <body>
+        <form action="/ttp" method="get">
+          <input type="text" name="text" placeholder="Enter text" />
+          <button type="submit">Submit</button>
+        </form>
+      </body>
+    </html>`;
+    res.type('html').send(html);
+  })
+ //--------------------------------------------------------------------------
 .get('/ttp/:text', async (req, res) => {
     const text = req.params.text;
     console.log("Text For TTP : " + text);
