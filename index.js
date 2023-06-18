@@ -8,8 +8,8 @@ const PORT = process.env.PORT || 3000;
 //-----------------------------------------
 const { createCanvas, loadImage, registerFont } = require('canvas');
 const GIFEncoder = require('gifencoder');
-registerFont(path.join(__dirname, 'public', 'Pacifico.ttf'), { family: 'Pacifico' });
-registerFont(path.join(__dirname, 'public', 'Flick Bold Hollow.ttf'), { family: 'Flick Bold Hollow' });
+registerFont(path.join(__dirname, 'tmp', 'Pacifico.ttf'), { family: 'Pacifico' });
+registerFont(path.join(__dirname, 'tmp', 'Flick Bold Hollow.ttf'), { family: 'Flick Bold Hollow' });
  
  
 //express()
@@ -123,7 +123,7 @@ app.get('/ttp/:text', async (req, res) => {
       ctx.fillText(line, centerX, lineY);
     });
     // Convert the canvas to a PNG image
-    const imagePath = path.join(__dirname, 'public', 'image.png');
+    const imagePath = path.join(__dirname, 'tmp', 'image.png');
     const out = fs.createWriteStream(imagePath);
     const stream = canvas.createPNGStream();
     stream.pipe(out);
@@ -182,8 +182,8 @@ app.get('/ttp/:text', async (req, res) => {
 app.get('/attp2/:text', async (req, res) => {
   const text = req.params.text;
   console.log("Text For ATTP : " + text);
-  const frameDuration = 100;
-  const gifDuration = 2000; 
+  const frameDuration = 40;
+  const gifDuration = 1000; 
   const encoder = new GIFEncoder(300, 300);
   encoder.start();
   encoder.setRepeat(0); // 0 for repeat indefinitely
@@ -234,7 +234,7 @@ app.get('/attp2/:text', async (req, res) => {
 
   encoder.finish();
   const gifBuffer = encoder.out.getData();
-  const gifPath = path.join(__dirname, 'public', 'glowing-text.gif');
+  const gifPath = path.join(__dirname, 'tmp', 'attp.gif');
   fs.writeFileSync(gifPath, gifBuffer);
   fs.readFile(gifPath, (err, data) => {
     if (err) {
