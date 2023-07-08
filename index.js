@@ -283,6 +283,10 @@ app.get('/attp/:text', async (req, res) => {
   res.writeHead(200, {'Content-Type': 'image/gif','Content-Length': gifBuffer.length, });
   res.end(gifBuffer);
 })
+///==================================================================
+app.get('/heroku', (req, res) => {
+  res.sendFile('heroku.html', { root: 'public' });
+});
   //-----------------------------------------------------------------
   app.listen(PORT, () => console.log(`Listening on ${PORT}`));
 
